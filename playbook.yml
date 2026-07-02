@@ -1,0 +1,66 @@
+---
+- name: Setup Debian Workstation
+  hosts: localhost
+  connection: local
+  become: yes
+
+  vars:
+    apt_packages:
+      - ufw
+      - libreoffice
+      - gimp
+      - reaper
+      - anydesk
+      - kate
+      - dolphin
+      - rclone
+      - feathernotes
+      - adb
+
+  tasks:
+    - name: Update and upgrade system
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install standard software
+      apt:
+        name: "{{ apt_packages }}"
+        state: present
+
+    # --- Спец-инструменты ---
+
+    - name: Add Kdenlive stable PPA
+      apt_repository:
+        repo: "ppa:kdenlive/kdenlive-stable"
+        state: present
+
+    - name: Add AmnesiaWG repository
+      apt_repository:
+        repo: "deb [trusted=yes] https://repo.amnesia.am/debian stable main"
+        state: present
+        filename: amnesia
+
+    - name: Update cache after adding repositories
+      apt:
+        update_cache: yes
+
+    - name: Install specialized and PPA packages
+      apt:
+        name:
+          - kdenlive
+          - amnesia-wg
+        state: present
+
+    - name: Download and install GoST v3
+      unarchive:
+        src: https://github.com/go-gost/gost/releases/latest/download/gost-linux-amd64.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: '0755'
+
+    - name: Install Xray (VLESS) via official script
+      shell: |
+        curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh | bash -s -- install
+      args:
+        creates: /usr/local/bin/xray
