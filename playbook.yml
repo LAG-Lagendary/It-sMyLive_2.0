@@ -58,7 +58,19 @@
         dest: /usr/local/bin
         remote_src: yes
         mode: '0755'
-
+        
+    - name: Install Unreal Engine dependencies
+      apt:
+        name:
+         - clang
+          - cmake
+          - libvulkan-dev
+          - mesa-vulkan-drivers
+          - mesa-utils
+          - vulkan-tools
+          state: present
+          update_cache: yes
+    
     - name: Install Xray (VLESS) via official script
       shell: |
         curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh | bash -s -- install
